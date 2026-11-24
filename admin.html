@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Baixada VIP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen p-4">
+    <!-- Tela de Login -->
+    <div id="tela-login" class="max-w-sm mx-auto mt-20 bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl">
+        <h1 class="text-lg font-bold text-rose-500 mb-4 text-center">Painel Administrativo - Mk</h1>
+        <form onsubmit="fazerLogin(event)" class="space-y-3">
+            <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1">Senha de Acesso</label>
+                <input type="password" id="senha-admin" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500" placeholder="Digite a senha">
+            </div>
+            <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-sm transition">Entrar</button>
+        </form>
+    </div>
+
+    <!-- Painel de Gerenciamento -->
+    <div id="painel" class="max-w-2xl mx-auto hidden pb-20">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-lg font-bold text-rose-500">Painel do Mk - Baixada VIP</h1>
+            <a href="index.html" class="text-xs text-zinc-400 bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-800">Ver Site</a>
+        </div>
+
+        <div id="lista-admin" class="space-y-4">
+            <p class="text-zinc-500 text-sm">Carregando anúncios...</p>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://ncpgqsaaedbmxwtwpths.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jcGdxc2FhZWRibXh3dHdwdGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1MzY3ODIsImV4cCI6MjExMDExMjc4Mn0.AEic5uEF8FwfXYHDzwsDXMN6yz0koUpivG4WhJtsI0Q";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const SENHA_MESTRA = "baixadavip123";
+
+        function fazerLogin(e) {
+            e.preventDefault();
+            if (document.getElementById('senha-admin').value === SENHA_MESTRA) {
+                document.getElementById('tela-login').classList.add('hidden');
+                document.getElementById('painel').classList.remove('hidden');
+                carregarAdmin();
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        function identificarPlano(item) {
+            if (item.vip) return '<span class="text-amber-400 font-bold">VIP OURO (39,90)</span>';
+            if (item.subida_topo && new Date(item.subida_topo) > new Date('2026-11-14')) return '<span class="text-rose-400 font-bold">DESTAQUE (19,90)</span>';
+            return '<span class="text-zinc-400">Grátis</span>';
+        }
+
+        async function carregarAdmin() {
+            const { data, error } = await supabaseClient
+                .from('anuncios')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('lista-admin');
+            if (error || !data || data.length === 0) {
+                container.innerHTML = '<p class="text-zinc-500 text-sm">Nenhum anúncio encontrado.</p>';
+                return;
+            }
+
+            container.innerHTML = data.map(item => {
+                let qtdFotos = 1;
+                if (item.fotos_extras) {
+                    qtdFotos = item.fotos_extras.split(',').filter(f => f.trim() !== '').length;
+                }
+
+                return `
+                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3">
+                            <img src="${item.foto_url}" class="w-16 h-20 object-cover rounded-lg border border-zinc-800">
+                            <div>
+                                <h2 class="font-bold text-sm text-white">${item.nome} (${item.bairro})</h2>
+                                <p class="text-xs text-zinc-400 mt-0.5">Status: <span class="${item.status === 'aprovado' ? 'text-emerald-400' : 'text-amber-400'} font-semibold">${item.status}</span></p>
+                                <p class="text-xs text-zinc-400">Plano Ativo: ${identificarPlano(item)}</p>
+                                <p class="text-[11px] text-zinc-500 mt-1">📸 ${qtdFotos} foto(s) ${item.video_url ? '| 🎬 Com Vídeo' : ''}</p>
+                            </div>
+                        </div>
+                        <button onclick="excluir('${item.id}')" class="bg-rose-950 text-rose-400 hover:bg-rose-900 text-xs px-2.5 py-1.5 rounded-lg font-medium">
+                            Excluir
+                        </button>
+                    </div>
+
+                    ${item.descricao ? `<p class="text-xs text-zinc-300 bg-zinc-950 p-2.5 rounded-lg border border-zinc-800/60"><b>Texto:</b> ${item.descricao}</p>` : ''}
+
+                    <!-- BOTÕES DE LIBERAÇÃO DE PLANO -->
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-800/80">
+                        <button onclick="ativarGratis('${item.id}')" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[11px] py-2 rounded-lg font-semibold">
+                            Aprovar Grátis
+                        </button>
+                        <button onclick="ativarDestaque('${item.id}')" class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] py-2 rounded-lg font-bold">
+                            Destaque 19,90
+                        </button>
+                        <button onclick="ativarVipOuro('${item.id}')" class="bg-amber-500 hover:bg-amber-600 text-zinc-950 text-[11px] py-2 rounded-lg font-bold">
+                            VIP Ouro 39,90
+                        </button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        async function ativarGratis(id) {
+            await supabaseClient.from('anuncios').update({ 
+                status: 'aprovado', 
+                vip: false,
+                subida_topo: '2026-01-01T00:00:00Z'
+            }).eq('id', id);
+            carregarAdmin();
+        }
+
+        async function ativarDestaque(id) {
+            const seteDias = new Date();
+            seteDias.setDate(seteDias.getDate() + 7);
+            
+            await supabaseClient.from('anuncios').update({ 
+                status: 'aprovado', 
+                vip: false,
+                subida_topo: seteDias.toISOString()
+            }).eq('id', id);
+            carregarAdmin();
+        }
+
+        async function ativarVipOuro(id) {
+            const seteDias = new Date();
+            seteDias.setDate(seteDias.getDate() + 7);
+
+            await supabaseClient.from('anuncios').update({ 
+                status: 'aprovado', 
+                vip: true,
+                subida_topo: seteDias.toISOString()
+            }).eq('id', id);
+            carregarAdmin();
+        }
+
+        async function excluir(id) {
+            if(confirm('Tem certeza que deseja apagar este anúncio?')) {
+                await supabaseClient.from('anuncios').delete().eq('id', id);
+                carregarAdmin();
+            }
+        }
+    </script>
+</body>
+</html>

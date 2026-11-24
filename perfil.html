@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Baixada VIP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen pb-20">
+    <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
+            <a href="index.html" class="text-zinc-400 hover:text-white text-sm">← Voltar</a>
+            <h1 id="titulo-nav" class="text-base font-bold text-white">Detalhes do Perfil</h1>
+        </div>
+    </header>
+
+    <main id="perfil-conteudo" class="max-w-md mx-auto px-4 py-4 space-y-4">
+        <div class="text-center py-12 text-zinc-500">Carregando perfil...</div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = "https://ncpgqsaaedbmxwtwpths.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jcGdxc2FhZWRibXh3dHdwdGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1MzY3ODIsImV4cCI6MjExMDExMjc4Mn0.AEic5uEF8FwfXYHDzwsDXMN6yz0koUpivG4WhJtsI0Q";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function carregarPerfil() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+
+            if (!id) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const { data: item, error } = await supabaseClient
+                .from('anuncios')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            const container = document.getElementById('perfil-conteudo');
+            if (error || !item) {
+                container.innerHTML = '<div class="text-center py-12 text-zinc-500">Perfil não encontrado.</div>';
+                return;
+            }
+
+            document.getElementById('titulo-nav').textContent = `${item.nome}, ${item.idade}`;
+
+            let fotos = [item.foto_url];
+            if (item.fotos_extras) {
+                const extras = item.fotos_extras.split(',').filter(f => f.trim() !== '' && f !== item.foto_url);
+                fotos = fotos.concat(extras);
+            }
+
+            container.innerHTML = `
+                <div class="space-y-2">
+                    <div class="relative aspect-[3/4] bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800">
+                        <img id="foto-principal" src="${fotos[0]}" class="w-full h-full object-cover">
+                        <span class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md text-zinc-200 text-xs px-2.5 py-1 rounded-md font-medium">${item.bairro}</span>
+                    </div>
+
+                    ${fotos.length > 1 ? `
+                    <div class="flex gap-2 overflow-x-auto pb-1">
+                        ${fotos.map((f, index) => `
+                            <button onclick="document.getElementById('foto-principal').src='${f}'" class="w-16 h-20 rounded-xl overflow-hidden border border-zinc-800 flex-shrink-0 focus:border-rose-500">
+                                <img src="${f}" class="w-full h-full object-cover">
+                            </button>
+                        `).join('')}
+                    </div>` : ''}
+                </div>
+
+                ${item.video_url ? `
+                <div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl">
+                    <p class="text-xs font-bold text-zinc-400 mb-2">Vídeo Apresentação:</p>
+                    <video controls class="w-full rounded-xl max-h-80 bg-black">
+                        <source src="${item.video_url}" type="video/mp4">
+                        Seu navegador não suporta vídeos.
+                    </video>
+                </div>` : ''}
+
+                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-lg font-bold text-white">${item.nome}, <span class="text-zinc-400">${item.idade} anos</span></h2>
+                            <p class="text-zinc-400 text-xs mt-0.5">Bairro: <span class="text-zinc-200 font-medium">${item.bairro}</span></p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-rose-400 font-extrabold text-base">R$ ${item.valor_hora}</span>
+                            <span class="block text-[10px] text-zinc-500">por hora</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-zinc-800 pt-3">
+                        <p class="text-xs font-bold text-zinc-400 mb-1">Sobre mim:</p>
+                        <p class="text-zinc-200 text-xs leading-relaxed whitespace-pre-line">${item.descricao || 'Nenhuma descrição informada.'}</p>
+                    </div>
+                </div>
+
+                <div class="fixed bottom-0 left-0 right-0 bg-zinc-900/90 backdrop-blur-md border-t border-zinc-800 p-3 z-50">
+                    <div class="max-w-md mx-auto">
+                        <a href="https://wa.me/55${(item.whatsapp || '').replace(/\D/g, '')}?text=Olá%20${encodeURIComponent(item.nome)},%20vi%20seu%20anúncio%20no%20Baixada%20VIP." target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition">
+                            Conversar no WhatsApp
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        carregarPerfil();
+    </script>
+</body>
+</html>

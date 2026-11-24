@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta name="google-site-verification" content="UqJPRb18UR4W4fRj-h0IIh9tlSbtgJEC63kzjqceF1U" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baixada VIP - Classificados Regionais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+    <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-rose-500">Baixada <span class="text-white">VIP</span></h1>
+            <a href="anunciar.html" class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">Anunciar Grátis</a>
+        </div>
+    </header>
+
+    <!-- Filtros de Bairro -->
+    <div class="max-w-4xl mx-auto px-4 py-4">
+        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <button onclick="filtrarBairro('todos')" class="bairro-btn bg-rose-600 text-white text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium transition">Todos</button>
+            <button onclick="filtrarBairro('Canto do Forte')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Canto do Forte</button>
+            <button onclick="filtrarBairro('Boqueirão')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Boqueirão</button>
+            <button onclick="filtrarBairro('Guilhermina')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Guilhermina</button>
+            <button onclick="filtrarBairro('Aviação')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Aviação</button>
+            <button onclick="filtrarBairro('Tupi')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Tupi</button>
+            <button onclick="filtrarBairro('Ocian')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Ocian</button>
+            <button onclick="filtrarBairro('Caiçara')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Caiçara</button>
+            <button onclick="filtrarBairro('Maracanã')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Maracanã</button>
+            <button onclick="filtrarBairro('Samambaia')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Samambaia</button>
+            <button onclick="filtrarBairro('Melvi')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Melvi</button>
+            <button onclick="filtrarBairro('Solemar')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Solemar</button>
+        </div>
+    </div>
+
+    <!-- Vitrine -->
+    <main class="max-w-4xl mx-auto px-4 pb-12">
+        <div id="grid-anuncios" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div class="col-span-full text-center py-12 text-zinc-500">Carregando perfis...</div>
+        </div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = "https://ncpgqsaaedbmxwtwpths.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jcGdxc2FhZWRibXh3dHdwdGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1MzY3ODIsImV4cCI6MjExMDExMjc4Mn0.AEic5uEF8FwfXYHDzwsDXMN6yz0koUpivG4WhJtsI0Q";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let todosAnuncios = [];
+
+        async function carregarAnuncios() {
+            const { data, error } = await supabaseClient
+                .from('anuncios')
+                .select('*')
+                .eq('status', 'aprovado')
+                .order('vip', { ascending: false })
+                .order('subida_topo', { ascending: false })
+                .order('created_at', { ascending: false });
+
+            if (error) return;
+            todosAnuncios = data || [];
+            renderizar(todosAnuncios);
+        }
+
+        function renderizar(lista) {
+            const grid = document.getElementById('grid-anuncios');
+            if (lista.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-zinc-500">Nenhum anúncio nesta região.</div>';
+                return;
+            }
+
+            const agora = new Date();
+
+            grid.innerHTML = lista.map(item => {
+                const isVipOuro = item.vip === true;
+                const isDestaque = !isVipOuro && item.subida_topo && new Date(item.subida_topo) > agora;
+
+                let estiloCard = 'border-zinc-800';
+                let seloHtml = '';
+
+                if (isVipOuro) {
+                    estiloCard = 'border-amber-500 shadow-lg shadow-amber-500/20';
+                    seloHtml = '<span class="absolute top-2 left-2 bg-amber-500 text-zinc-950 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase shadow">VIP OURO</span>';
+                } else if (isDestaque) {
+                    estiloCard = 'border-rose-500/70 shadow-md shadow-rose-500/10';
+                    seloHtml = '<span class="absolute top-2 left-2 bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase shadow">DESTAQUE</span>';
+                }
+
+                return `
+                <div onclick="window.location.href='perfil.html?id=${item.id}'" class="bg-zinc-900 border ${estiloCard} rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer hover:border-zinc-600 transition">
+                    <div>
+                        <div class="relative aspect-[3/4] bg-zinc-950">
+                            <img src="${item.foto_url}" class="w-full h-full object-cover">
+                            ${seloHtml}
+                            <span class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md text-zinc-200 text-[10px] px-2 py-0.5 rounded-md font-medium">${item.bairro}</span>
+                        </div>
+                        <div class="p-3">
+                            <h2 class="font-bold text-sm text-white truncate">${item.nome}, ${item.idade}</h2>
+                            <p class="text-rose-400 font-semibold text-xs mt-0.5">R$ ${item.valor_hora} / hora</p>
+                        </div>
+                    </div>
+                    <div class="p-3 pt-0">
+                        <span class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition">
+                            Ver Perfil Completo
+                        </span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function filtrarBairro(bairro) {
+            document.querySelectorAll('.bairro-btn').forEach(btn => {
+                if(btn.textContent.trim() === bairro || (bairro === 'todos' && btn.textContent.trim() === 'Todos')) {
+                    btn.className = "bairro-btn bg-rose-600 text-white text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium transition";
+                } else {
+                    btn.className = "bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition";
+                }
+            });
+
+            if(bairro === 'todos') {
+                renderizar(todosAnuncios);
+            } else {
+                renderizar(todosAnuncios.filter(i => i.bairro === bairro));
+            }
+        }
+
+        carregarAnuncios();
+    </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anunciar - Baixada VIP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen pb-12">
+    <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
+            <a href="index.html" class="text-zinc-400 hover:text-white text-sm">← Voltar</a>
+            <h1 class="text-base font-bold text-white">Criar Anúncio - Baixada VIP</h1>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 py-6">
+        <form id="form-anuncio" class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1">Nome Artístico</label>
+                <input type="text" id="nome" required class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500" placeholder="Ex: Sabrina">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Idade</label>
+                    <input type="number" id="idade" required class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500" placeholder="Ex: 22">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Valor da Hora (R$)</label>
+                    <input type="text" id="valor_hora" required class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500" placeholder="Ex: 150">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1">Seu WhatsApp (para receber clientes)</label>
+                <input type="tel" id="whatsapp" required class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500" placeholder="13999999999">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1">Bairro / Região</label>
+                <select id="bairro" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500">
+                    <option value="Canto do Forte">Canto do Forte</option>
+                    <option value="Boqueirão">Boqueirão</option>
+                    <option value="Guilhermina">Guilhermina</option>
+                    <option value="Aviação">Aviação</option>
+                    <option value="Tupi">Tupi</option>
+                    <option value="Ocian">Ocian</option>
+                    <option value="Caiçara">Caiçara</option>
+                    <option value="Maracanã">Maracanã</option>
+                    <option value="Samambaia">Samambaia</option>
+                    <option value="Ribeirópolis">Ribeirópolis</option>
+                    <option value="Melvi">Melvi</option>
+                    <option value="Solemar">Solemar</option>
+                    <option value="Baixada Santista">Outra cidade da Baixada</option>
+                </select>
+            </div>
+
+            <!-- FOTOS COM TRAVA RIGOROSA DE MÁXIMO 5 E ESCOLHA DA CAPA -->
+            <div class="bg-zinc-900/60 border border-zinc-800 p-4 rounded-2xl space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-white mb-1">Fotos do Perfil (Selecione de 1 a 5 fotos)</label>
+                    <input type="file" id="fotos" accept="image/*" multiple required class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700">
+                    <p class="text-[10px] text-zinc-400 mt-1">⚠️ Máximo de 5 fotos permitidas.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">Qual foto será a Principal (Capa da Vitrine)?</label>
+                    <select id="foto_principal_index" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500">
+                        <option value="0">1ª foto selecionada (Padrão)</option>
+                        <option value="1">2ª foto selecionada</option>
+                        <option value="2">3ª foto selecionada</option>
+                        <option value="3">4ª foto selecionada</option>
+                        <option value="4">5ª foto selecionada</option>
+                    </select>
+                    <p class="text-[10px] text-zinc-500 mt-0.5">As outras fotos ficarão disponíveis na galeria ao abrirem o perfil.</p>
+                </div>
+            </div>
+
+            <!-- VÍDEO DO CELULAR -->
+            <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1">Vídeo Curto do Celular (Opcional - MP4)</label>
+                <input type="file" id="video" accept="video/mp4,video/quicktime" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1">Descrição / Sobre seu atendimento</label>
+                <textarea id="descricao" rows="3" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500" placeholder="Fale sobre você, locais de atendimento, etc..."></textarea>
+            </div>
+
+            <!-- ESCOLHA DE PLANOS -->
+            <div class="pt-2">
+                <label class="block text-xs font-bold text-white mb-2">Escolha seu Plano de Visibilidade:</label>
+                <div class="space-y-2.5">
+                    <label class="flex items-start gap-3 bg-zinc-900 border border-zinc-800 p-3 rounded-xl cursor-pointer">
+                        <input type="radio" name="plano_escolhido" value="Grátis (R$ 0,00)" checked class="mt-1 accent-rose-600">
+                        <div>
+                            <p class="text-xs font-bold text-white">Plano Básico - Grátis</p>
+                            <p class="text-[11px] text-zinc-400">Aparece abaixo dos anúncios pagos.</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 bg-zinc-900 border border-rose-500/40 p-3 rounded-xl cursor-pointer">
+                        <input type="radio" name="plano_escolhido" value="Destaque (R$ 19,90)" class="mt-1 accent-rose-600">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <p class="text-xs font-bold text-rose-400">Plano Destaque - R$ 19,90</p>
+                                <span class="bg-rose-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">7 DIAS</span>
+                            </div>
+                            <p class="text-[11px] text-zinc-300 mt-0.5">Fica acima dos grátis e ganha selo DESTAQUE.</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 bg-zinc-900 border border-amber-500/50 p-3 rounded-xl cursor-pointer">
+                        <input type="radio" name="plano_escolhido" value="VIP Ouro (R$ 39,90)" class="mt-1 accent-amber-500">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <p class="text-xs font-bold text-amber-400">Plano VIP Ouro - R$ 39,90</p>
+                                <span class="bg-amber-500 text-zinc-950 text-[9px] font-bold px-1.5 py-0.5 rounded">TOPO</span>
+                            </div>
+                            <p class="text-[11px] text-zinc-300 mt-0.5">Primeiro lugar absoluto e borda dourada brilhante.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" id="btn-enviar" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl transition text-sm shadow-lg shadow-rose-600/20">Finalizar e Publicar</button>
+        </form>
+
+        <div id="sucesso-gratis" class="hidden mt-6 bg-zinc-900 border border-zinc-800 p-5 rounded-2xl text-center">
+            <h2 class="text-emerald-400 font-bold text-base">Cadastro Enviado!</h2>
+            <p class="text-zinc-300 text-xs mt-2">Seu anúncio foi enviado para moderação.</p>
+            <a href="index.html" class="inline-block mt-4 bg-zinc-800 text-white text-xs font-bold px-5 py-2.5 rounded-xl">Voltar ao Site</a>
+        </div>
+
+        <div id="sucesso-pago" class="hidden mt-6 bg-zinc-900 border border-amber-500/40 p-5 rounded-2xl text-center">
+            <span class="bg-amber-500/10 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Quase lá!</span>
+            <h2 class="text-white font-bold text-base mt-2">Ative seu Plano Agora</h2>
+            <p class="text-zinc-300 text-xs mt-1.5">Clique abaixo para falar com o <b>Mk</b> no WhatsApp, fazer o Pix e liberar seu destaque na hora:</p>
+            <a id="link-whatsapp-mk" href="#" target="_blank" class="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition">
+                Pagar via Pix no WhatsApp
+            </a>
+        </div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = "https://ncpgqsaaedbmxwtwpths.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jcGdxc2FhZWRibXh3dHdwdGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1MzY3ODIsImV4cCI6MjExMDExMjc4Mn0.AEic5uEF8FwfXYHDzwsDXMN6yz0koUpivG4WhJtsI0Q";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const WHATSAPP_MK = "5511916713167";
+
+        document.getElementById('form-anuncio').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fotosFiles = document.getElementById('fotos').files;
+            
+            // TRAVA DE SEGURANÇA RIGOROSA: Máximo 5 fotos
+            if (fotosFiles.length > 5) {
+                alert('Erro: Você pode selecionar no máximo 5 fotos.');
+                return;
+            }
+
+            if (fotosFiles.length === 0) {
+                alert('Por favor, selecione pelo menos 1 foto.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-enviar');
+            btn.textContent = "Enviando mídias (aguarde)...";
+            btn.disabled = true;
+
+            try {
+                const nome = document.getElementById('nome').value;
+                const bairro = document.getElementById('bairro').value;
+                const planoEscolhido = document.querySelector('input[name="plano_escolhido"]:checked').value;
+                let indiceCapa = parseInt(document.getElementById('foto_principal_index').value);
+                
+                // Se o índice escolhido for maior que a quantidade enviada, usa a primeira (0)
+                if (indiceCapa >= fotosFiles.length) {
+                    indiceCapa = 0;
+                }
+                
+                let fotosUrls = [];
+                for (let i = 0; i < fotosFiles.length; i++) {
+                    const nomeArq = `foto_${Date.now()}_${i}.webp`;
+                    const { error: errUp } = await supabaseClient.storage.from('fotos').upload(nomeArq, fotosFiles[i]);
+                    if (!errUp) {
+                        const { data: pub } = supabaseClient.storage.from('fotos').getPublicUrl(nomeArq);
+                        fotosUrls.push(pub.publicUrl);
+                    }
+                }
+
+                // Organiza para a foto escolhida como capa vir primeiro na lista
+                let fotoPrincipal = fotosUrls[indiceCapa] || fotosUrls[0];
+                let fotosExtrasArray = fotosUrls.filter((_, index) => index !== indiceCapa);
+
+                let videoUrl = "";
+                const videoFile = document.getElementById('video').files[0];
+                if (videoFile) {
+                    const nomeVid = `video_${Date.now()}.mp4`;
+                    const { error: errVid } = await supabaseClient.storage.from('fotos').upload(nomeVid, videoFile);
+                    if (!errVid) {
+                        const { data: pubVid } = supabaseClient.storage.from('fotos').getPublicUrl(nomeVid);
+                        videoUrl = pubVid.publicUrl;
+                    }
+                }
+
+                const { error: dbError } = await supabaseClient.from('anuncios').insert([{
+                    nome: nome,
+                    idade: parseInt(document.getElementById('idade').value),
+                    valor_hora: document.getElementById('valor_hora').value,
+                    whatsapp: document.getElementById('whatsapp').value,
+                    bairro: bairro,
+                    descricao: document.getElementById('descricao').value,
+                    foto_url: fotoPrincipal,
+                    fotos_extras: fotosExtrasArray.join(','),
+                    video_url: videoUrl,
+                    status: 'pendente',
+                    vip: false
+                }]);
+
+                if (dbError) throw dbError;
+
+                document.getElementById('form-anuncio').classList.add('hidden');
+
+                if (planoEscolhido.includes('Grátis')) {
+                    document.getElementById('sucesso-gratis').classList.remove('hidden');
+                } else {
+                    const mensagem = `Olá Mk! Cadastrei o anúncio *${nome}* (${bairro}) no *Baixada VIP* no *${planoEscolhido}*. Pode me enviar a chave Pix?`;
+                    const urlZap = `https://wa.me/${WHATSAPP_MK}?text=${encodeURIComponent(mensagem)}`;
+                    document.getElementById('link-whatsapp-mk').href = urlZap;
+                    document.getElementById('sucesso-pago').classList.remove('hidden');
+                    window.location.href = urlZap;
+                }
+
+            } catch (err) {
+                alert('Erro ao enviar: ' + err.message);
+                btn.textContent = "Finalizar e Publicar";
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
