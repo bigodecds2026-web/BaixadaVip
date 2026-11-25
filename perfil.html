@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - Baixada VIP</title>
+    <title>Perfil em Praia Grande SP - Baixada VIP</title>
+    <meta name="description" content="Veja fotos, detalhes de atendimento e contato direto no Baixada VIP em Praia Grande SP.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://baixadavip.vercel.app/perfil.html">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -23,6 +26,47 @@
         const SUPABASE_URL = "https://ncpgqsaaedbmxwtwpths.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jcGdxc2FhZWRibXh3dHdwdGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1MzY3ODIsImV4cCI6MjExMDExMjc4Mn0.AEic5uEF8FwfXYHDzwsDXMN6yz0koUpivG4WhJtsI0Q";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function atualizarSeoPerfil(item) {
+            const titulo = `${item.nome}, ${item.idade} - ${item.bairro} em Praia Grande SP | Baixada VIP`;
+            document.title = titulo;
+
+            const descTexto = item.descricao
+                ? `${item.nome} (${item.idade} anos) em ${item.bairro}, Praia Grande SP. R$ ${item.valor_hora}/hora. ${item.descricao.slice(0, 110)}`
+                : `Perfil de ${item.nome} (${item.idade} anos) no bairro ${item.bairro} em Praia Grande SP. Valor: R$ ${item.valor_hora}/hora no Baixada VIP.`;
+
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) {
+                metaDesc = document.createElement('meta');
+                metaDesc.name = 'description';
+                document.head.appendChild(metaDesc);
+            }
+            metaDesc.content = descTexto;
+
+            const schemaAntigo = document.getElementById('schema-perfil');
+            if (schemaAntigo) schemaAntigo.remove();
+
+            const scriptSchema = document.createElement('script');
+            scriptSchema.id = 'schema-perfil';
+            scriptSchema.type = 'application/ld+json';
+            scriptSchema.textContent = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "ProfilePage",
+                "mainEntity": {
+                    "@type": "Person",
+                    "name": item.nome,
+                    "description": descTexto,
+                    "image": item.foto_url,
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Praia Grande",
+                        "addressRegion": "SP",
+                        "streetAddress": item.bairro
+                    }
+                }
+            });
+            document.head.appendChild(scriptSchema);
+        }
 
         async function carregarPerfil() {
             const params = new URLSearchParams(window.location.search);
@@ -45,7 +89,8 @@
                 return;
             }
 
-            document.getElementById('titulo-nav').textContent = `${item.nome}, ${item.idade}`;
+            atualizarSeoPerfil(item);
+            document.getElementById('titulo-nav').textContent = `${item.nome}, ${item.idade} - ${item.bairro}`;
 
             let fotos = [item.foto_url];
             if (item.fotos_extras) {
@@ -56,7 +101,7 @@
             container.innerHTML = `
                 <div class="space-y-2">
                     <div class="relative aspect-[3/4] bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800">
-                        <img id="foto-principal" src="${fotos[0]}" class="w-full h-full object-cover">
+                        <img id="foto-principal" src="${fotos[0]}" alt="${item.nome} em ${item.bairro}, Praia Grande SP" class="w-full h-full object-cover">
                         <span class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md text-zinc-200 text-xs px-2.5 py-1 rounded-md font-medium">${item.bairro}</span>
                     </div>
 
@@ -64,7 +109,7 @@
                     <div class="flex gap-2 overflow-x-auto pb-1">
                         ${fotos.map((f, index) => `
                             <button onclick="document.getElementById('foto-principal').src='${f}'" class="w-16 h-20 rounded-xl overflow-hidden border border-zinc-800 flex-shrink-0 focus:border-rose-500">
-                                <img src="${f}" class="w-full h-full object-cover">
+                                <img src="${f}" alt="Foto ${index + 1} de ${item.nome} em Praia Grande" class="w-full h-full object-cover">
                             </button>
                         `).join('')}
                     </div>` : ''}
@@ -83,7 +128,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <h2 class="text-lg font-bold text-white">${item.nome}, <span class="text-zinc-400">${item.idade} anos</span></h2>
-                            <p class="text-zinc-400 text-xs mt-0.5">Bairro: <span class="text-zinc-200 font-medium">${item.bairro}</span></p>
+                            <p class="text-zinc-400 text-xs mt-0.5">Bairro: <span class="text-zinc-200 font-medium">${item.bairro} - Praia Grande SP</span></p>
                         </div>
                         <div class="text-right">
                             <span class="text-rose-400 font-extrabold text-base">R$ ${item.valor_hora}</span>
