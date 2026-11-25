@@ -1,23 +1,66 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta name="google-site-verification" content="UqJPRb18UR4W4fRj-h0IIh9tlSbtgJEC63kzjqceF1U" />
+    <meta name="google-site-verification" content="UqJPRb18UR4W4fRj-h0IIh9tlSbtgJEC63kzjqceF1U" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baixada VIP - Classificados Regionais</title>
+    
+    <!-- SEO Principal -->
+    <title>Baixada VIP - Acompanhantes em Praia Grande SP | Classificados</title>
+    <meta name="description" content="Encontre acompanhantes em Praia Grande SP com fotos reais e contato direto. Perfis no Canto do Forte, Boqueirão, Guilhermina, Aviação, Tupi, Ocian, Caiçara e toda a Baixada Santista.">
+    <meta name="keywords" content="acompanhantes praia grande, acompanhantes em praia grande sp, baixada vip, classificados praia grande, acompanhantes boqueirao, acompanhantes canto do forte, acompanhantes tupi, acompanhantes ocian, baixada santista">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://baixadavip.vercel.app/">
+
+    <!-- Open Graph (Prévia para WhatsApp, Telegram e Redes Sociais) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Baixada VIP">
+    <meta property="og:title" content="Baixada VIP - Acompanhantes em Praia Grande SP">
+    <meta property="og:description" content="Catálogo exclusivo de acompanhantes em Praia Grande SP. Filtre por bairro: Canto do Forte, Boqueirão, Guilhermina, Tupi, Ocian e mais.">
+    <meta property="og:url" content="https://baixadavip.vercel.app/">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Dados Estruturados LocalBusiness / Catalog para o Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Baixada VIP",
+      "alternateName": "BaixadaVIP Praia Grande",
+      "url": "https://baixadavip.vercel.app/",
+      "description": "Plataforma de classificados e acompanhantes em Praia Grande, SP e Baixada Santista.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Praia Grande",
+        "containedInPlace": {
+          "@type": "State",
+          "name": "São Paulo"
+        }
+      }
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col">
     <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-rose-500">Baixada <span class="text-white">VIP</span></h1>
+            <a href="/" class="text-xl font-bold text-rose-500">Baixada <span class="text-white">VIP</span></a>
             <a href="anunciar.html" class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">Anunciar Grátis</a>
         </div>
     </header>
 
+    <!-- Título H1 e Introdução SEO Local -->
+    <section class="max-w-4xl mx-auto px-4 pt-5 pb-1 w-full">
+        <h1 class="text-lg sm:text-xl font-bold text-white">Acompanhantes em Praia Grande SP</h1>
+        <p class="text-xs sm:text-sm text-zinc-400 mt-1">
+            Perfis verificados e contato direto na Praia Grande. Selecione o bairro desejado abaixo para filtrar os anúncios da região.
+        </p>
+    </section>
+
     <!-- Filtros de Bairro -->
-    <div class="max-w-4xl mx-auto px-4 py-4">
+    <nav aria-label="Filtro por bairros de Praia Grande" class="max-w-4xl mx-auto px-4 py-3 w-full">
         <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
             <button onclick="filtrarBairro('todos')" class="bairro-btn bg-rose-600 text-white text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium transition">Todos</button>
             <button onclick="filtrarBairro('Canto do Forte')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Canto do Forte</button>
@@ -32,14 +75,28 @@
             <button onclick="filtrarBairro('Melvi')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Melvi</button>
             <button onclick="filtrarBairro('Solemar')" class="bairro-btn bg-zinc-900 text-zinc-300 text-xs px-3 py-1.5 rounded-full whitespace-nowrap font-medium border border-zinc-800 transition">Solemar</button>
         </div>
-    </div>
+    </nav>
 
     <!-- Vitrine -->
-    <main class="max-w-4xl mx-auto px-4 pb-12">
+    <main class="max-w-4xl mx-auto px-4 pb-12 w-full flex-1">
         <div id="grid-anuncios" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div class="col-span-full text-center py-12 text-zinc-500">Carregando perfis...</div>
         </div>
     </main>
+
+    <!-- Rodapé SEO com Contexto Regional -->
+    <footer class="bg-zinc-900/60 border-t border-zinc-900 mt-auto">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-xs text-zinc-500 space-y-2">
+            <p class="text-zinc-400 font-semibold">Baixada VIP — Classificados Adultos em Praia Grande, SP</p>
+            <p>
+                Diretório de acompanhantes independentes atuantes nos bairros Canto do Forte, Boqueirão, Guilhermina, Aviação, Vila Tupi, Ocian, Vila Mirim, Maracanã, Caiçara, Samambaia, Melvi e Solemar. Plataforma exclusiva para maiores de 18 anos.
+            </p>
+            <div class="pt-2 flex gap-4 text-zinc-400">
+                <a href="/" class="hover:text-rose-400 transition">Início</a>
+                <a href="anunciar.html" class="hover:text-rose-400 transition">Anunciar Grátis</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
         const SUPABASE_URL = "https://ncpgqsaaedbmxwtwpths.supabase.co";
@@ -87,10 +144,10 @@
                 }
 
                 return `
-                <div onclick="window.location.href='perfil.html?id=${item.id}'" class="bg-zinc-900 border ${estiloCard} rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer hover:border-zinc-600 transition">
+                <article onclick="window.location.href='perfil.html?id=${item.id}'" class="bg-zinc-900 border ${estiloCard} rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer hover:border-zinc-600 transition">
                     <div>
                         <div class="relative aspect-[3/4] bg-zinc-950">
-                            <img src="${item.foto_url}" class="w-full h-full object-cover">
+                            <img src="${item.foto_url}" alt="${item.nome} - Acompanhante em Praia Grande no bairro ${item.bairro}" loading="lazy" class="w-full h-full object-cover">
                             ${seloHtml}
                             <span class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md text-zinc-200 text-[10px] px-2 py-0.5 rounded-md font-medium">${item.bairro}</span>
                         </div>
@@ -100,11 +157,11 @@
                         </div>
                     </div>
                     <div class="p-3 pt-0">
-                        <span class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition">
+                        <a href="perfil.html?id=${item.id}" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition">
                             Ver Perfil Completo
-                        </span>
+                        </a>
                     </div>
-                </div>
+                </article>
                 `;
             }).join('');
         }
